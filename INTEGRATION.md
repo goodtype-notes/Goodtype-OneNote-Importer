@@ -28,7 +28,7 @@ own source, and accepts updates only through signed metadata (below).
 `goodtype-onenote-import.exe --version --json` returns:
 
 ```json
-{"name":"goodtype-onenote-import","version":"0.1.0","protocolVersion":1,"notebookSchemaVersion":3,"decoderCommit":"727389a674665dc07e0c31818cd4b54b64b9c684"}
+{"name":"goodtype-onenote-import","version":"0.1.2","protocolVersion":1,"notebookSchemaVersion":3,"decoderCommit":"727389a674665dc07e0c31818cd4b54b64b9c684"}
 ```
 
 `decoderCommit` is the upstream onenote.rs commit tagged `v2.1.0`, the exact `onenote_parser`
@@ -70,3 +70,5 @@ users download versioned releases directly.
 `goodtype-core` comes from a pinned Goodtype Git revision; upgrade it deliberately and re-run
 the opt-in sample conversion. Never copy or fork its persistence code. Upgrade `onenote_parser`
 the same way and update `DECODER_PIN` in `src/lib.rs` and `scripts/build_windows.py` together.
+
+The portable ZIP includes `goodtype-addon.json`, whose version and target match the signed release descriptor.

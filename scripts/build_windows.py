@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import platform
 import shutil
@@ -19,7 +20,7 @@ NAME = "goodtype-onenote-import"
 CORE_REVISION = "01aefd9fec51ee4d06e85c7b0a48285d6ba90c0c"
 # Upstream onenote.rs commit tagged v2.1.0, the exact onenote_parser release in Cargo.lock.
 DECODER_REVISION = "727389a674665dc07e0c31818cd4b54b64b9c684"
-REPOSITORY = "https://github.com/Just8it/Goodtype-OneNote-Importer"
+REPOSITORY = "https://github.com/" + os.environ.get("GITHUB_REPOSITORY", "goodtype-notes/Goodtype-OneNote-Importer")
 
 
 def run(*args):
@@ -107,6 +108,11 @@ def build(output):
         metadata = {"version": version, "protocolVersion": 1, "notebookSchemaVersion": 3,
                     "target": "x86_64-pc-windows-msvc", "sourceCommit": commit, "sourceDirty": dirty,
                     "goodtypeCoreRevision": CORE_REVISION, "decoderCommit": DECODER_REVISION}
+        addon = ROOT/"goodtype-addon.json"
+        identity = json.loads(addon.read_text(encoding="utf8"))
+        if identity["version"] != version or identity["target"] != metadata["target"]:
+            raise ValueError("addon manifest version or target differs from the package")
+        shutil.copy2(addon, staging/addon.name)
         metadata["files"] = [{"path": p.relative_to(staging).as_posix(), "sizeBytes": p.stat().st_size,
                               "sha256": sha256(p)} for p in sorted(staging.rglob("*")) if p.is_file()]
         (staging/"importer-manifest.json").write_text(json.dumps(metadata, indent=2)+"\n", encoding="utf8")

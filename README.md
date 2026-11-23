@@ -15,7 +15,7 @@
 <p align="center">Bring your OneNote notebooks into Goodtype. Keep your notes on your own disk.</p>
 
 Convert a OneNote section, notebook folder, package or web export into ordinary
-[Goodtype](https://github.com/Just8it/Goodtype) notebooks. Each section becomes a notebook;
+[Goodtype](https://github.com/goodtype-notes/Goodtype) notebooks. Each section becomes a notebook;
 notebook folders and section groups keep their structure in the Library.
 
 Conversion works offline. No account, no upload, no telemetry. Goodtype works without this tool,
@@ -41,7 +41,7 @@ are never replaced.
 
 ## Use
 
-Download the **Windows x64 ZIP** from [Releases](https://github.com/Just8it/Goodtype-OneNote-Importer/releases),
+Download the **Windows x64 ZIP** from [Releases](https://github.com/goodtype-notes/Goodtype-OneNote-Importer/releases),
 extract it and keep the whole folder together. No Python or separate decoder installation is needed.
 
 ```powershell
@@ -66,12 +66,12 @@ on Windows. Python is used only during development; the released converter is a 
 ```powershell
 cargo xtask verify
 python scripts/build_windows.py
-python scripts/test_bundle.py dist/goodtype-onenote-importer-0.1.0-windows-x64.zip
+python scripts/test_bundle.py dist/goodtype-onenote-importer-0.1.2-windows-x64.zip
 ```
 
 The portable folder, ZIP and checksums appear in `dist/`. Dependencies download during setup/build
 only. [Release integration](./INTEGRATION.md) describes the version contract.
-[Development and releases](./RELEASING.md) explains `dev`/`main` promotion and automatic signed releases.
+[Development and releases](./RELEASING.md) explains tag-based signed releases.
 Real-file checks are opt-in: set `ONENOTE_SAMPLES` and run `cargo test -- --ignored`.
 
 ## License

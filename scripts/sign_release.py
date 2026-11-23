@@ -37,9 +37,4 @@ def sign(directory, public_key, private_key):
 
 if __name__ == "__main__":
     public_key = Path("release-public-key.pem")
-    if not public_key.exists():
-        # No update key yet: Goodtype pins this release's hash instead and offers no update check.
-        print("No release-public-key.pem; publishing without signed update metadata.")
-    else:
-        # Once a key exists, a missing secret must stop the release rather than skip signing.
-        sign(Path("dist"), public_key, os.environ["IMPORTER_SIGNING_KEY"])
+    sign(Path(os.environ["RELEASE_ASSETS"]), public_key, os.environ["IMPORTER_SIGNING_KEY"])

@@ -1,4 +1,6 @@
-# Goodtype OneNote Importer 0.1.0
+# Goodtype OneNote Importer 0.1.2
+
+Signed release under the goodtype-notes organization.
 
 First release. Converts OneNote sections (`.one`), notebook folders (`.onetoc2`), packages
 (`.onepkg`) and OneNote-for-the-web ZIP exports into ordinary Goodtype notebooks.

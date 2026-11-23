@@ -5,7 +5,7 @@ Two long-lived branches are enough for this importer:
 | Ref | Purpose | GitHub does |
 |---|---|---|
 | `dev` | Ongoing development; new work normally targets this branch | Verify, build the portable ZIP and retain it as a test artifact |
-| `main` | Tested release line; receives PRs from `dev` | Verify the merged commit, build/test its ZIP and automatically publish a new version |
+| `main` | Tested release line; receives PRs from `dev` | Verify the merged commit, build/test its ZIP and retain it as a test artifact |
 | `v0.1.0`, etc. | Exact published source revision | Identifies a fixed release; never move a published tag or replace its assets |
 
 The main line is the stable distribution channel. The converter itself remains alpha until its
@@ -34,17 +34,10 @@ flowchart LR
    `RELEASE_NOTES.md`, and run the opt-in sample conversion (`ONENOTE_SAMPLES`).
 3. Open a PR from `dev` to `main`. Required CI must pass on the proposed merge. Merge this PR
    with a merge commit so the two long-lived branches retain their shared history.
-4. The push to `main` builds again from the actual merged commit. If verification, packaging
-   and smoke tests pass, GitHub creates the version tag and Release, with ZIP, descriptor JSON
-   and `SHA256SUMS`. No local release build or manual asset upload is needed.
-5. Merge `main` back into `dev` before continuing the next release. Never force-reset either
-   shared branch. A hotfix promoted through `main` must also return to `dev`.
-
-Merging without a version bump still builds and tests, but does not replace an existing release.
-A failed workflow publishes nothing new; the previous release remains available. Fix on `dev`
-and promote again. A prerelease suffix such as `0.2.0-rc.1` produces a GitHub prerelease.
-Versions without a suffix produce normal releases. Version numbers describe release identity;
-the README still describes the current alpha limitations.
+4. After CI passes, push a new tag such as `v0.1.2` on the merged main commit.
+   The tag must match the plain Cargo.toml version. Tag CI rebuilds, tests
+   and publishes the ZIP, signed descriptor and SHA256SUMS.
+5. Merge `main` back into `dev` through a PR before the next release.
 
 ## Branch rules
 
@@ -55,7 +48,7 @@ Keep `main` as the default branch so visitors see released documentation. Featur
 explicitly target `dev`. Enable merge commits for `dev` → `main` promotions.
 
 The workflows do not run privileged release work on pull requests. Build jobs have read-only
-repository permissions; only the successful `main` publishing job has content-write permission.
+repository permissions; only the tagged publishing job has content-write permission.
 Third-party Actions are pinned to commits. Release jobs serialize so two promotions cannot race
 to publish a version. Normal users download fixed Release assets without a GitHub login.
 
@@ -69,7 +62,7 @@ Do not execute branch source, unsigned latest binaries or development artifacts.
 
 `release-public-key.pem` is this importer's public verification key, separate from Goodnotes.
 Its private counterpart is the repository
-Actions secret `IMPORTER_SIGNING_KEY`; it is available only to the successful protected-main
+Actions secret `IMPORTER_SIGNING_KEY`; it is available only to the successful tagged
 publisher job. `scripts/sign_release.py` signs the exact descriptor bytes using OpenSSL and
 verifies against the checked-in public key before publication. No private key enters an artifact.
 Rotating this key requires a coordinated Goodtype update; do not replace it as routine maintenance.

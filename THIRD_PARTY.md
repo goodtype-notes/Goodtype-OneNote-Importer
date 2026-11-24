@@ -6,7 +6,7 @@
   are listed in `licenses/rust-dependencies.json`. Its MPL-2.0 text, also covering
   `onenote_parser-macros`, is retained from that upstream revision in
   `licenses/onenote.rs-MPL-2.0.txt` because the crates.io archives omit the license file.
-- [goodtype-core](https://github.com/Just8it/Goodtype) at a pinned revision: the canonical
+- [goodtype-core](https://github.com/goodtype-notes/Goodtype) at a pinned revision: the canonical
   notebook writer and validator, shared with Goodtype itself.
 - Direct Rust dependencies, each with one responsibility: `cab` and `zip` unpack `.onepkg`
   packages and ZIP exports into bounded scratch folders; `image` (PNG, JPEG, GIF, BMP, TIFF)

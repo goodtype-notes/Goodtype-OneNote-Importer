@@ -1,0 +1,31 @@
+{
+  "manifestVersion": 1,
+  "id": "onenote",
+  "version": "0.1.2",
+  "apiVersion": "goodtype-api 0.1",
+  "target": "x86_64-pc-windows-msvc",
+  "entrypoint": "goodtype-onenote-import.exe",
+  "transport": "legacy-import-cli",
+  "permissions": [
+    "picked-import-file",
+    "publish-import-batch"
+  ],
+  "commands": [
+    {
+      "id": "import-notebooks",
+      "surface": "library-import",
+      "label": "import-notebooks"
+    }
+  ],
+  "settings": [],
+  "strings": {
+    "en": {
+      "name": "OneNote Importer",
+      "import-notebooks": "Import OneNote notebooks"
+    },
+    "de": {
+      "name": "OneNote-Import",
+      "import-notebooks": "OneNote-Notizbücher importieren"
+    }
+  }
+}

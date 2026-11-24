@@ -1,11 +1,11 @@
 [package]
 name = "goodtype-onenote-import"
-version = "0.1.0"
+version = "0.1.2"
 edition = "2024"
 license = "Apache-2.0"
 publish = false
 default-run = "goodtype-onenote-import"
-repository = "https://github.com/Just8it/Goodtype-OneNote-Importer"
+repository = "https://github.com/goodtype-notes/Goodtype-OneNote-Importer"
 description = "Local OneNote notebook and section conversion into ordinary Goodtype notebooks"
 rust-version = "1.97.1"
 
@@ -14,7 +14,7 @@ rust-version = "1.97.1"
 
 [dependencies]
 # The canonical writer: Goodtype's own core, pinned, never copied.
-goodtype-core = { git = "https://github.com/Just8it/Goodtype.git", rev = "01aefd9fec51ee4d06e85c7b0a48285d6ba90c0c" }
+goodtype-core = { git = "https://github.com/goodtype-notes/Goodtype.git", rev = "01aefd9fec51ee4d06e85c7b0a48285d6ba90c0c" }
 # OneNote decoding (MPL-2.0). Exact version; its upstream commit is reported as the decoder pin.
 onenote_parser = { version = "=2.1.0", default-features = false, features = ["native-fs"] }
 # The path type `onenote_parser` takes for a section's file name.

@@ -3,6 +3,7 @@ name: Windows
 on:
   push:
     branches: [dev, main]
+    tags: ['v*']
   pull_request:
   workflow_dispatch:
 
@@ -46,7 +47,7 @@ jobs:
           if-no-files-found: error
 
   release:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     needs: verify-and-package
     runs-on: ubuntu-latest
     permissions:
@@ -57,37 +58,44 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: false
+      - name: Require a release commit on main
+        run: git merge-base --is-ancestor HEAD origin/main
+      - name: Require the tag to match Cargo.toml
+        run: |
+          python3 - <<'PY'
+          import os, re, tomllib
+          with open('Cargo.toml', 'rb') as source:
+              version = tomllib.load(source)['package']['version']
+          assert re.fullmatch(r'(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)', version)
+          assert os.environ['GITHUB_REF_NAME'] == f'v{version}'
+          PY
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: windows-x64
-          path: dist
+          path: ${{ runner.temp }}/release-assets
       - name: Sign update metadata
         env:
+          RELEASE_ASSETS: ${{ runner.temp }}/release-assets
           IMPORTER_SIGNING_KEY: ${{ secrets.IMPORTER_SIGNING_KEY }}
         run: python3 scripts/sign_release.py
-      - name: Publish new version from main
+      - name: Publish tagged version
         env:
+          RELEASE_ASSETS: ${{ runner.temp }}/release-assets
           GH_TOKEN: ${{ github.token }}
         run: |
           python3 - <<'PY'
-          import json, os, pathlib, subprocess
-          manifest = json.loads(next(pathlib.Path('dist').glob('goodtype-onenote-importer-*.json')).read_text())
+          import json, os, pathlib, re, subprocess
+          directory = pathlib.Path(os.environ['RELEASE_ASSETS'])
+          manifest = json.loads(next(directory.glob('goodtype-onenote-importer-*.json')).read_text())
           assert manifest['sourceCommit'] == os.environ['GITHUB_SHA']
           assert not manifest['sourceDirty']
           tag = 'v' + manifest['version']
           repo = os.environ['GITHUB_REPOSITORY']
-          existing = subprocess.run(['gh','api',f'repos/{repo}/git/ref/tags/{tag}'], capture_output=True)
-          if existing.returncode == 0:
-              print(f'{tag} already exists; published versions are never replaced. Bump Cargo.toml to release another version.')
-          else:
-              # Refuse to turn a network/auth failure into a guessed missing version.
-              if b'404' not in existing.stderr:
-                  raise RuntimeError(existing.stderr.decode())
-              assets = [str(p) for pattern in ('*.zip','*.json','*.sig','SHA256SUMS') for p in pathlib.Path('dist').glob(pattern)]
-              args = ['gh','release','create',tag,*assets,'--repo',repo,'--target',os.environ['GITHUB_SHA'],
-                      '--title',f'Goodtype OneNote Importer {tag}','--notes-file','dist/RELEASE_NOTES.md']
-              if '-' in manifest['version']:
-                  args.append('--prerelease')
-              subprocess.run(args,check=True)
+          assert os.environ['GITHUB_REF'] == f'refs/tags/{tag}'
+          assert re.fullmatch(r'v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)', tag)
+          assets = [str(p) for pattern in ('*.zip','*.json','*.sig','SHA256SUMS') for p in directory.glob(pattern)]
+          subprocess.run(['gh','release','create',tag,*assets,'--repo',repo,'--verify-tag',
+                          '--title',tag,'--notes-file',str(directory / 'RELEASE_NOTES.md')], check=True)
           PY
